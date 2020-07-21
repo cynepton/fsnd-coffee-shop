@@ -76,7 +76,18 @@ def get_token_auth_header():
     
 '''
 def check_permissions(permission, payload):
-    return 'works?'
+    if "permissions" not in payload:
+        raise AuthError({
+            'code': 'missing_permission',
+            'description': 'There are no permissions in this request'
+        }, 401)
+        
+    if permission not in payload["permissions"]:
+        raise AuthError({
+            'code': 'not_authorized_to_get_drink_detail',
+            'description': 'Not authorized to perform this action'
+        }, 401)
+    return True
 
 '''
 @TODO implement verify_decode_jwt(token) method
