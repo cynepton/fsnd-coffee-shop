@@ -29,20 +29,37 @@ class AuthError(Exception):
     it should attempt to split bearer and the token
         it should raise an AuthError if the header is malformed
     return the token part of the header
+
+    code source: https://github.com/udacity/FSND/tree/master/BasicFlaskAuth
 '''
 def get_token_auth_header():
     if "Authorization" not in request.headers:
-        abort(401)
+        raise AuthError({
+            'code': 'authorization_header_missing',
+            'description': 'Authorization header is expected.'
+        }, 401)
     
     auth_header = request.headers['Authorization']
     header_parts = auth_header.split(' ')
 
-    if len(header_parts)!=2:
-        # malformed header
-        abort(401)
-    elif header_parts[0].lower() != 'bearer':
-        abort(401)
-    # raise Exception('Not Implemented')
+    if header_parts[0].lower() != 'bearer':
+        raise AuthError({
+            'code': 'invalid_header',
+            'description': 'Authorization header must start with "Bearer".'
+        }, 401)
+
+    elif len(header_parts) == 1:
+        raise AuthError({
+            'code': 'invalid_header',
+            'description': 'Token not found.'
+        }, 401)
+
+    elif len(header_parts) > 2:
+        raise AuthError({
+            'code': 'invalid_header',
+            'description': 'Authorization header must be bearer token.'
+        }, 401)
+
     token = header_parts[1]
     return token
 
@@ -56,9 +73,10 @@ def get_token_auth_header():
         !!NOTE check your RBAC settings in Auth0
     it should raise an AuthError if the requested permission string is not in the payload permissions array
     return true otherwise
+    
 '''
 def check_permissions(permission, payload):
-    raise Exception('Not Implemented')
+    return 'works?'
 
 '''
 @TODO implement verify_decode_jwt(token) method
@@ -71,10 +89,12 @@ def check_permissions(permission, payload):
     it should validate the claims
     return the decoded payload
 
+    code source: https://github.com/udacity/FSND/tree/master/BasicFlaskAuth
+
     !!NOTE urlopen has a common certificate error described here: https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
 '''
 def verify_decode_jwt(token):
-    raise Exception('Not Implemented')
+    j
 
 '''
 @TODO implement @requires_auth(permission) decorator method
@@ -91,7 +111,11 @@ def requires_auth(permission=''):
         @wraps(f)
         def wrapper(*args, **kwargs):
             token = get_token_auth_header()
-            payload = verify_decode_jwt(token)
+            try:
+                payload = verify_decode_jwt(token)
+            except:
+                abort(401)
+            
             check_permissions(permission, payload)
             return f(payload, *args, **kwargs)
 
