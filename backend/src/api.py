@@ -16,7 +16,7 @@ CORS(app)
 !! NOTE THIS WILL DROP ALL RECORDS AND START YOUR DB FROM SCRATCH
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 '''
-db_drop_and_create_all()
+#db_drop_and_create_all()
 
 ## ROUTES
 '''
@@ -27,6 +27,23 @@ db_drop_and_create_all()
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks')
+def get_public_drinks():
+    all_drinks = Drink.query.all()
+
+    # if len(all_drinks) < 1:
+    #     abort(404)
+
+    drinks = []
+    for each_drink in all_drinks:
+        short_detail = each_drink.short()
+        drinks.append(short_detail)
+
+    return jsonify({
+        "status": 200,
+        "success": True,
+        "drinks": drinks
+    }), 200
 
 
 '''
@@ -37,6 +54,10 @@ db_drop_and_create_all()
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks-detail')
+@requires_auth('get:drinks-detail')
+def get_drinks_detail(token):
+    pass
 
 
 '''
@@ -100,8 +121,15 @@ def unprocessable(error):
 
 '''
 @TODO implement error handler for 404
-    error handler should conform to general task above 
+    error handler should conform to general task above
 '''
+ @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({
+            'success': False,
+            'error': 404,
+            'message': 'Resource not found'
+        }), 404
 
 
 '''
