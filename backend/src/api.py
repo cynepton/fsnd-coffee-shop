@@ -31,13 +31,17 @@ CORS(app)
 def get_public_drinks():
     all_drinks = Drink.query.all()
 
-    # if len(all_drinks) < 1:
-    #     abort(404)
+    if len(all_drinks) < 1:
+        return jsonify({
+        "status": 200,
+        "success": True,
+        "drinks": None
+    }), 200
 
     drinks = []
     for each_drink in all_drinks:
-        short_detail = each_drink.short()
-        drinks.append(short_detail)
+        short_info = each_drink.short()
+        drinks.append(short_info)
 
     return jsonify({
         "status": 200,
@@ -56,8 +60,19 @@ def get_public_drinks():
 '''
 @app.route('/drinks-detail')
 @requires_auth('get:drinks-detail')
-def get_drinks_detail(token):
-    pass
+def get_drinks_detail(payload):
+    all_drinks = Drink.query.all()
+
+    drinks = []
+    for each_drink in all_drinks:
+        long_detail = each_drink.long()
+        drinks.append(long_detail)
+    
+    return jsonify({
+        "status": 200,
+        "success": True,
+        "drinks": drinks
+    }), 200
 
 
 '''
