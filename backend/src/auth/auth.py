@@ -76,17 +76,18 @@ def get_token_auth_header():
     
 '''
 def check_permissions(permission, payload):
-    if "permissions" not in payload:
+    if 'permissions' not in payload:
+                        raise AuthError({
+                            'code': 'invalid_claims',
+                            'description': 'Permissions not included in JWT.'
+                        }, 400)
+
+    if permission not in payload['permissions']:
         raise AuthError({
-            'code': 'missing_permission',
-            'description': 'There are no permissions in this request'
+            'code': 'unauthorized',
+            'description': 'Permission not found.'
         }, 401)
-        
-    if permission not in payload["permissions"]:
-        raise AuthError({
-            'code': 'not_authorized_to_get_drink_detail',
-            'description': 'Not authorized to perform this action'
-        }, 401)
+
     return True
 
 '''
